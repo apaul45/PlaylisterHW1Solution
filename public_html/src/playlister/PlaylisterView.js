@@ -18,9 +18,11 @@ export default class PlaylisterView {
     init() {
         // @todo - ONCE YOU IMPLEMENT THE FOOLPROOF DESIGN STUFF YOU SHOULD PROBABLY
         // START THESE BUTTONS OFF AS DISABLED
-        this.enableButton('undo-button');
-        this.enableButton('redo-button');
-        this.enableButton('close-button');
+        this.enableButton('add-list-button');
+        this.disableButton('add-song-button');
+        this.disableButton('undo-button');
+        this.disableButton('redo-button');
+        this.disableButton('close-button');
     }
 
     /*
@@ -113,12 +115,27 @@ export default class PlaylisterView {
             itemDiv.classList.add("unselected-list-card");
             itemDiv.id = "playlist-card-" + (i + 1);
 
-            // PUT THE CONTENT INTO THE CARD
-            let itemText = document.createTextNode(song.title + " by " + song.artist);
-            itemDiv.appendChild(itemText);
+            //Add the song's index and title/artist as hyperlink to the card
+            let songNumber = document.createTextNode(i+1 + ". ");
+            itemDiv.appendChild(songNumber);
+
+            let hyperLink = document.createElement("a");
+            hyperLink.href = "https://www.youtube.com/watch?v=" + song.youTubeId;
+            hyperLink.appendChild(document.createTextNode(song.title + " by " + song.artist));
+            itemDiv.appendChild(hyperLink);
+
+            //Add a delete button to the card
+            let deleteButton = document.createElement("input");
+            deleteButton.setAttribute("type", "button");
+            deleteButton.id = "delete-song-" + i;
+            deleteButton.value = "x";
+            deleteButton.className = "toolbar-button";
+            deleteButton.style = "float:right";
+            itemDiv.appendChild(deleteButton);
 
             // AND PUT THE CARD INTO THE UI
             itemsDiv.appendChild(itemDiv);
+            
         }
         // NOW THAT THE CONTROLS EXIST WE CAN REGISTER EVENT
         // HANDLERS FOR THEM
@@ -197,11 +214,31 @@ export default class PlaylisterView {
         let tps = model.tps;
         if (model.confirmDialogOpen) {
             this.disableButton("add-list-button");
+            this.disableButton("add-song-button");
             this.disableButton("undo-button");
             this.disableButton("redo-button");
             this.disableButton("close-button");
         }
+        else{
+            if (tps.hasTransactionToUndo()) this.enableButton("undo-button");
+            else if (!tps.hasTransactionToUndo()) this.disableButton("undo-button");
+
+            if (tps.hasTransactionToRedo()) this.enableButton("redo-button");
+            else if (!tps.hasTransactionToRedo()) this.disableButton("redo-button");
+
+            if (model.hasCurrentList()) {
+                this.enableButton("close-button");
+                this.enableButton("add-song-button");
+            }
+            else {
+                this.disableButton("close-button");
+                this.disableButton('add-song-button');
+            }
+
+            this.enableButton("add-list-button");
+        }
     }
+
 
     /*
         updateStatusBar

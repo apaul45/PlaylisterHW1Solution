@@ -15,8 +15,29 @@ export default class Playlist {
         return this.name;
     }
 
+    getId() {
+        return this.id;
+    }
+
     setName(initName) {
         this.name = initName;
+    }
+
+    addSong(index) {
+        this.songs.splice(index, 0, {
+            title: "Unknown", 
+            artist: "Unknown",
+            youTubeId: "dQw4w9WgXcQ"
+        });
+        return this.songs.length;
+    }
+
+    addSongAtIndex(index, song) { 
+        this.songs.splice(index, 0, song);
+    }
+
+    deleteSong(index) {
+        this.songs.splice(index, 1);
     }
 
     getSongAt(index) {
